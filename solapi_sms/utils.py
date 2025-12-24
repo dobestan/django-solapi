@@ -1,5 +1,5 @@
-import random
 import re
+import secrets
 
 PHONE_REGEX = re.compile(r"^01[0-9]{8,9}$")
 
@@ -26,7 +26,7 @@ def mask_phone(phone: str) -> str:
 
 def generate_verification_code() -> str:
     """Generate a 6-digit verification code."""
-    return str(random.randint(100000, 999999))
+    return "".join(str(secrets.randbelow(10)) for _ in range(6))
 
 
 def build_message(template: str, **kwargs) -> str:

@@ -9,6 +9,7 @@ Django SMS integration for SOLAPI with standardized models, admin utilities, and
 - SMS 인증코드 생성/검증 모델 및 서비스
 - Admin 표준 유틸 (상태 배지, 재발송 액션 등)
 - Celery 작업(Task) 기반 확장 지원
+- 인증코드 발송/검증 헬퍼 (뷰 표준화)
 
 ## Installation
 
@@ -28,6 +29,8 @@ SOLAPI_API_KEY = "your-api-key"
 SOLAPI_API_SECRET = "your-api-secret"
 SOLAPI_SENDER_PHONE = "01012345678"
 SOLAPI_APP_NAME = "서비스명"
+SOLAPI_VERIFICATION_RATE_LIMIT_COUNT = 5
+SOLAPI_VERIFICATION_RATE_LIMIT_WINDOW_SECONDS = 3600
 ```
 
 ## Quick Start
@@ -37,6 +40,18 @@ from solapi_sms.services import SMSService
 
 service = SMSService()
 service.send_sms("01012345678", "[서비스명] 테스트 메시지입니다.")
+```
+
+## Auth Helpers (Views)
+
+```python
+from solapi_sms.auth import send_verification_code, verify_code
+
+send_result = send_verification_code("01012345678")
+if send_result["success"]:
+    verification = send_result["verification"]
+
+verify_result = verify_code("01012345678", "123456")
 ```
 
 ## Verification Code

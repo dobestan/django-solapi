@@ -18,6 +18,12 @@ SOLAPI_VERIFICATION_TTL_SECONDS = getattr(
 SOLAPI_VERIFICATION_MAX_ATTEMPTS = getattr(
     django_settings, "SOLAPI_VERIFICATION_MAX_ATTEMPTS", 5
 )
+SOLAPI_VERIFICATION_RATE_LIMIT_COUNT = getattr(
+    django_settings, "SOLAPI_VERIFICATION_RATE_LIMIT_COUNT", 0
+)
+SOLAPI_VERIFICATION_RATE_LIMIT_WINDOW_SECONDS = getattr(
+    django_settings, "SOLAPI_VERIFICATION_RATE_LIMIT_WINDOW_SECONDS", 0
+)
 
 SOLAPI_CELERY_QUEUE = getattr(django_settings, "SOLAPI_CELERY_QUEUE", None)
 
@@ -28,6 +34,7 @@ SOLAPI_TEMPLATES = getattr(
         "verification": "[{app_name}] 인증번호는 [{code}]입니다. {expires_minutes}분 내로 입력해주세요.",
         "login_notification": "[{app_name}] [{username}]님이 로그인 하였습니다.",
         "welcome": "[{app_name}] 회원가입을 환영합니다.",
+        "analysis_complete": "[{app_name}] 분석이 완료되었습니다.\n{report_url}",
     },
 )
 
