@@ -1,3 +1,3 @@
-from .services import SMSService
+"""SOLAPI SMS Django app."""
 
-__all__ = ["SMSService"]
+__all__ = []
