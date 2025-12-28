@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import Any
 
 from django.core.cache import cache as default_cache
+from django.core.cache.backends.base import BaseCache
+from django.db.models import Model
 
 from .services import SMSService, get_sms_verification_model
 from .settings import (
@@ -14,14 +16,16 @@ from .utils import is_valid_phone, normalize_phone
 
 
 def _is_expired(verification: Any) -> bool:
+    """Check if a verification is expired, handling both property and method."""
     value = getattr(verification, "is_expired", False)
     return value() if callable(value) else bool(value)
 
 
-def get_latest_verification(phone: str):
+def get_latest_verification(phone: str) -> Model | None:
+    """Get the latest unverified verification for a phone number."""
     model = get_sms_verification_model()
-    return (
-        model.objects.filter(phone=phone, verified_at__isnull=True)
+    return (  # type: ignore[no-any-return]
+        model.objects.filter(phone=phone, verified_at__isnull=True)  # type: ignore[attr-defined]
         .order_by("-created_at")
         .first()
     )
@@ -30,36 +34,51 @@ def get_latest_verification(phone: str):
 def check_rate_limit(
     phone: str,
     *,
-    cache=None,
+    cache: BaseCache | None = None,
     key_prefix: str = "solapi_sms_attempt",
     limit: int | None = None,
     window_seconds: int | None = None,
-) -> dict:
-    cache = cache or default_cache
-    limit = limit if limit is not None else SOLAPI_VERIFICATION_RATE_LIMIT_COUNT
-    window_seconds = (
+) -> dict[str, Any]:
+    """
+    Check rate limit for SMS sending.
+
+    Args:
+        phone: Phone number to check
+        cache: Cache backend to use (defaults to Django's default cache)
+        key_prefix: Prefix for cache key
+        limit: Maximum attempts allowed
+        window_seconds: Time window in seconds
+
+    Returns:
+        dict with allowed status and attempt info
+    """
+    used_cache = cache or default_cache
+    effective_limit = (
+        limit if limit is not None else SOLAPI_VERIFICATION_RATE_LIMIT_COUNT
+    )
+    effective_window = (
         window_seconds
         if window_seconds is not None
         else SOLAPI_VERIFICATION_RATE_LIMIT_WINDOW_SECONDS
     )
-    if not limit or not window_seconds:
+    if not effective_limit or not effective_window:
         return {"allowed": True, "attempts": 0, "limit": 0, "window_seconds": 0}
 
     cache_key = f"{key_prefix}_{phone}"
-    attempts = cache.get(cache_key, 0)
-    if attempts >= limit:
+    attempts: int = used_cache.get(cache_key, 0)
+    if attempts >= effective_limit:
         return {
             "allowed": False,
             "attempts": attempts,
-            "limit": limit,
-            "window_seconds": window_seconds,
+            "limit": effective_limit,
+            "window_seconds": effective_window,
         }
-    cache.set(cache_key, attempts + 1, window_seconds)
+    used_cache.set(cache_key, attempts + 1, effective_window)
     return {
         "allowed": True,
         "attempts": attempts + 1,
-        "limit": limit,
-        "window_seconds": window_seconds,
+        "limit": effective_limit,
+        "window_seconds": effective_window,
     }
 
 
@@ -70,9 +89,24 @@ def send_verification_code(
     code: str | None = None,
     validate_phone: bool = True,
     rate_limit: bool = True,
-    cache=None,
+    cache: BaseCache | None = None,
     rate_limit_key_prefix: str = "solapi_sms_attempt",
-) -> dict:
+) -> dict[str, Any]:
+    """
+    Send a verification code to a phone number.
+
+    Args:
+        phone: Recipient phone number
+        service: SMSService instance (optional)
+        code: Custom verification code (optional)
+        validate_phone: Whether to validate phone format
+        rate_limit: Whether to apply rate limiting
+        cache: Cache backend for rate limiting
+        rate_limit_key_prefix: Prefix for rate limit cache key
+
+    Returns:
+        dict with success status and details
+    """
     phone = normalize_phone(phone)
     if validate_phone and not is_valid_phone(phone):
         return {
@@ -99,7 +133,7 @@ def send_verification_code(
 
     service = service or SMSService()
     verification = service.create_verification(phone, code=code)
-    success = service.send_verification_code(phone, verification.code)
+    success = service.send_verification_code(phone, verification.code)  # type: ignore[attr-defined]
     if not success:
         return {
             "success": False,
@@ -123,7 +157,20 @@ def verify_code(
     service: SMSService | None = None,
     validate_phone: bool = True,
     max_attempts: int | None = None,
-) -> dict:
+) -> dict[str, Any]:
+    """
+    Verify a code for a phone number.
+
+    Args:
+        phone: Phone number to verify
+        code: Verification code to check
+        service: SMSService instance (optional)
+        validate_phone: Whether to validate phone format
+        max_attempts: Maximum verification attempts allowed
+
+    Returns:
+        dict with success status and details
+    """
     phone = normalize_phone(phone)
     if validate_phone and not is_valid_phone(phone):
         return {
@@ -158,8 +205,8 @@ def verify_code(
             "verification": verification,
         }
 
-    max_attempts = max_attempts or SOLAPI_VERIFICATION_MAX_ATTEMPTS
-    if verification.attempts >= max_attempts:
+    effective_max_attempts = max_attempts or SOLAPI_VERIFICATION_MAX_ATTEMPTS
+    if verification.attempts >= effective_max_attempts:  # type: ignore[attr-defined]
         return {
             "success": False,
             "error": "max_attempts",
@@ -171,11 +218,11 @@ def verify_code(
     service = service or SMSService()
     if not service.verify_code(phone, code):
         verification.refresh_from_db()
-        remaining = max(max_attempts - verification.attempts, 0)
+        remaining = max(effective_max_attempts - verification.attempts, 0)  # type: ignore[attr-defined]
         if _is_expired(verification):
             error = "expired"
             message = "인증번호가 만료되었습니다. 다시 요청해주세요."
-        elif verification.attempts >= max_attempts:
+        elif verification.attempts >= effective_max_attempts:  # type: ignore[attr-defined]
             error = "max_attempts"
             message = "인증 시도 횟수를 초과했습니다. 다시 요청해주세요."
         else:

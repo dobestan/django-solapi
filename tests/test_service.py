@@ -5,7 +5,11 @@ from solapi_sms.services import SMSService
 
 
 @pytest.mark.django_db
-def test_send_sms_debug_skip_logs():
+def test_send_sms_debug_skip_logs(settings):
+    """DEBUG 모드에서 API 키가 없을 때 스킵되고 로그가 남는지 테스트"""
+    # pytest-django가 DEBUG=False로 설정하므로 명시적으로 True 설정
+    settings.DEBUG = True
+
     service = SMSService()
     result = service.send_sms("01012345678", "테스트 메시지")
     assert result is True

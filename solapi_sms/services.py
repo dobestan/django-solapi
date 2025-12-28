@@ -1,7 +1,11 @@
+from __future__ import annotations
+
 import logging
+from typing import Any
 
 from django.apps import apps as django_apps
 from django.conf import settings as django_settings
+from django.db.models import Model
 
 from .client import SolapiClient
 from .exceptions import SolapiSMSConfigError, SolapiSMSSendError
@@ -23,15 +27,19 @@ from .utils import build_message, generate_verification_code, normalize_phone
 logger = logging.getLogger(__name__)
 
 
-def get_sms_log_model():
-    model_path = getattr(django_settings, "SOLAPI_SMS_LOG_MODEL", None)
+def get_sms_log_model() -> type[Model]:
+    """Return the configured SMS log model class."""
+    model_path: str | None = getattr(django_settings, "SOLAPI_SMS_LOG_MODEL", None)
     if model_path:
         return django_apps.get_model(model_path)
     return SMSLog
 
 
-def get_sms_verification_model():
-    model_path = getattr(django_settings, "SOLAPI_SMS_VERIFICATION_MODEL", None)
+def get_sms_verification_model() -> type[Model]:
+    """Return the configured SMS verification model class."""
+    model_path: str | None = getattr(
+        django_settings, "SOLAPI_SMS_VERIFICATION_MODEL", None
+    )
     if model_path:
         return django_apps.get_model(model_path)
     return SMSVerificationCode
@@ -46,7 +54,7 @@ class SMSService:
         api_secret: str | None = None,
         sender: str | None = None,
         app_name: str | None = None,
-    ):
+    ) -> None:
         self.api_key = api_key or SOLAPI_API_KEY
         self.api_secret = api_secret or SOLAPI_API_SECRET
         self.sender = sender or SOLAPI_SENDER_PHONE
@@ -56,10 +64,10 @@ class SMSService:
         if not all([self.api_key, self.api_secret, self.sender]):
             raise SolapiSMSConfigError("SOLAPI 설정이 누락되었습니다.")
 
-    def _serialize_response(self, response) -> dict:
+    def _serialize_response(self, response: Any) -> dict[str, Any]:
         return SolapiClient.serialize_response(response)
 
-    def _is_success(self, response_dict: dict) -> bool:
+    def _is_success(self, response_dict: dict[str, Any]) -> bool:
         if "errorCode" in response_dict or "errorMessage" in response_dict:
             return False
         status_code = response_dict.get("statusCode")
@@ -73,11 +81,11 @@ class SMSService:
         message: str,
         message_type: str,
         status: str,
-        response_data: dict | None = None,
+        response_data: dict[str, Any] | None = None,
         error_message: str = "",
-    ):
+    ) -> Model:
         model = get_sms_log_model()
-        return model.objects.create(
+        return model.objects.create(  # type: ignore[attr-defined, no-any-return]
             phone=phone,
             message=message,
             message_type=message_type,
@@ -104,7 +112,7 @@ class SMSService:
             and SOLAPI_DEBUG_SKIP
             and not all([self.api_key, self.api_secret, self.sender])
         ):
-            log_entry = None
+            log_entry: Model | None = None
             if SOLAPI_LOG_SKIPPED:
                 log_entry = self._log_result(
                     phone=phone,
@@ -199,17 +207,17 @@ class SMSService:
         phone: str,
         template_key: str,
         message_type: str,
-        **kwargs,
+        **kwargs: object,
     ) -> bool:
         template = SOLAPI_TEMPLATES.get(template_key, "")
         message = build_message(template, app_name=self.app_name, **kwargs)
         return self.send_sms(phone, message, message_type=message_type)
 
-    def create_verification(self, phone: str, code: str | None = None):
+    def create_verification(self, phone: str, code: str | None = None) -> Model:
         phone = normalize_phone(phone)
         code = code or generate_verification_code()
         model = get_sms_verification_model()
-        verification = model.create_verification(
+        verification = model.create_verification(  # type: ignore[attr-defined]
             phone, code, SOLAPI_VERIFICATION_TTL_SECONDS
         )
         from .signals import verification_created
@@ -218,7 +226,7 @@ class SMSService:
             sender=self.__class__,
             verification=verification,
         )
-        return verification
+        return verification  # type: ignore[no-any-return]
 
     def send_verification_code(self, phone: str, code: str) -> bool:
         expires_minutes = max(1, SOLAPI_VERIFICATION_TTL_SECONDS // 60)
@@ -234,7 +242,7 @@ class SMSService:
         phone = normalize_phone(phone)
         model = get_sms_verification_model()
         verification = (
-            model.objects.filter(phone=phone, verified_at__isnull=True)
+            model.objects.filter(phone=phone, verified_at__isnull=True)  # type: ignore[attr-defined]
             .order_by("-created_at")
             .first()
         )

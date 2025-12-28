@@ -29,7 +29,6 @@ def generate_verification_code() -> str:
     return "".join(str(secrets.randbelow(10)) for _ in range(6))
 
 
-def build_message(template: str, **kwargs) -> str:
+def build_message(template: str, **kwargs: object) -> str:
     """Format a template with safe defaults."""
-    safe_kwargs = {k: v for k, v in kwargs.items()}
-    return template.format(**safe_kwargs)
+    return template.format(**kwargs)

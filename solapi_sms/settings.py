@@ -27,6 +27,10 @@ SOLAPI_VERIFICATION_RATE_LIMIT_WINDOW_SECONDS = getattr(
 
 SOLAPI_CELERY_QUEUE = getattr(django_settings, "SOLAPI_CELERY_QUEUE", None)
 
+# Task backend configuration
+# Options: "sync" (default), "django6", "celery"
+SOLAPI_TASK_BACKEND = getattr(django_settings, "SOLAPI_TASK_BACKEND", "sync")
+
 SOLAPI_TEMPLATES = getattr(
     django_settings,
     "SOLAPI_TEMPLATES",

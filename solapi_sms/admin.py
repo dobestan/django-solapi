@@ -1,12 +1,20 @@
+from __future__ import annotations
+
+from typing import Any
+
 from django.contrib import admin
+from django.db.models import QuerySet
+from django.http import HttpRequest
 from django.utils.html import format_html
+from django.utils.safestring import SafeString
 
 from .models import SMSLog, SMSLogStatus, SMSVerificationCode
 from .services import SMSService
 from .utils import mask_phone
 
 
-class SMSLogAdminMixin:
+@admin.register(SMSLog)
+class SMSLogAdmin(admin.ModelAdmin[SMSLog]):
     list_display = ["masked_phone", "message_type", "status_badge", "created_at"]
     list_filter = ["message_type", "status", "created_at"]
     search_fields = ["phone", "message"]
@@ -23,16 +31,17 @@ class SMSLogAdminMixin:
     date_hierarchy = "created_at"
 
     @admin.display(description="수신번호")
-    def masked_phone(self, obj):
+    def masked_phone(self, obj: SMSLog) -> str:
         return mask_phone(obj.phone)
 
     @admin.display(description="상태")
-    def status_badge(self, obj):
-        color = {
+    def status_badge(self, obj: SMSLog) -> SafeString:
+        color_map: dict[str, str] = {
             SMSLogStatus.SUCCESS: "#0f766e",
             SMSLogStatus.FAILED: "#b91c1c",
             SMSLogStatus.SKIPPED: "#6b7280",
-        }.get(obj.status, "#6b7280")
+        }
+        color = color_map.get(obj.status, "#6b7280")
         return format_html(
             '<span style="padding:2px 6px;border-radius:4px;color:white;background:{};">{}</span>',
             color,
@@ -40,7 +49,9 @@ class SMSLogAdminMixin:
         )
 
     @admin.action(description="선택 SMS 재발송")
-    def resend_selected_sms(self, request, queryset):
+    def resend_selected_sms(
+        self, request: HttpRequest, queryset: QuerySet[SMSLog]
+    ) -> None:
         service = SMSService()
         success = 0
         failed = 0
@@ -52,7 +63,8 @@ class SMSLogAdminMixin:
         self.message_user(request, f"재발송 성공: {success}건, 실패: {failed}건")
 
 
-class SMSVerificationCodeAdminMixin:
+@admin.register(SMSVerificationCode)
+class SMSVerificationCodeAdmin(admin.ModelAdmin[SMSVerificationCode]):
     list_display = [
         "phone",
         "code",
@@ -69,20 +81,11 @@ class SMSVerificationCodeAdminMixin:
     date_hierarchy = "created_at"
 
     @admin.display(description="만료됨", boolean=True)
-    def is_expired(self, obj):
-        value = getattr(obj, "is_expired", False)
-        return value() if callable(value) else value
+    def is_expired(self, obj: SMSVerificationCode) -> bool:
+        value: Any = getattr(obj, "is_expired", False)
+        result = value() if callable(value) else value
+        return bool(result)
 
     @admin.display(description="유효", boolean=True)
-    def is_valid(self, obj):
+    def is_valid(self, obj: SMSVerificationCode) -> bool:
         return obj.is_valid()
-
-
-@admin.register(SMSLog)
-class SMSLogAdmin(SMSLogAdminMixin, admin.ModelAdmin):
-    pass
-
-
-@admin.register(SMSVerificationCode)
-class SMSVerificationCodeAdmin(SMSVerificationCodeAdminMixin, admin.ModelAdmin):
-    pass

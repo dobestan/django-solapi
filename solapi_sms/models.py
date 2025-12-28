@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from datetime import timedelta
+from typing import Self
 
 from django.db import models
 from django.utils import timezone
@@ -41,7 +44,7 @@ class AbstractSMSLog(models.Model):
         abstract = True
         ordering = ["-created_at"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.phone} - {self.message_type} - {self.status}"
 
 
@@ -66,7 +69,7 @@ class AbstractSMSVerificationCode(models.Model):
             models.Index(fields=["phone", "-created_at"]),
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.phone} - {self.code}"
 
     @property
@@ -94,13 +97,15 @@ class AbstractSMSVerificationCode(models.Model):
         self.save(update_fields=["verified_at"])
 
     @classmethod
-    def create_verification(cls, phone: str, code: str, ttl_seconds: int | None = None):
-        ttl_seconds = ttl_seconds or settings.SOLAPI_VERIFICATION_TTL_SECONDS
-        expires_at = timezone.now() + timedelta(seconds=ttl_seconds)
-        cls.objects.filter(phone=phone, verified_at__isnull=True).update(
+    def create_verification(
+        cls, phone: str, code: str, ttl_seconds: int | None = None
+    ) -> Self:
+        ttl = ttl_seconds or settings.SOLAPI_VERIFICATION_TTL_SECONDS
+        expires_at = timezone.now() + timedelta(seconds=ttl)
+        cls.objects.filter(phone=phone, verified_at__isnull=True).update(  # type: ignore[attr-defined]
             verified_at=timezone.now()
         )
-        return cls.objects.create(phone=phone, code=code, expires_at=expires_at)
+        return cls.objects.create(phone=phone, code=code, expires_at=expires_at)  # type: ignore[attr-defined, no-any-return]
 
 
 class SMSVerificationCode(AbstractSMSVerificationCode):
