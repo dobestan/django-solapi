@@ -50,7 +50,7 @@ class SMSVerificationCodeAdminMixin:
 
 
 @admin.register(SMSLog)
-class SMSLogAdmin(admin.ModelAdmin):
+class SMSLogAdmin(admin.ModelAdmin[SMSLog]):
     list_display = ["masked_phone", "message_type", "status_badge", "created_at"]
     list_filter = ["message_type", "status", "created_at"]
     search_fields = ["phone", "message"]
@@ -100,7 +100,7 @@ class SMSLogAdmin(admin.ModelAdmin):
 
 
 @admin.register(SMSVerificationCode)
-class SMSVerificationCodeAdmin(admin.ModelAdmin):
+class SMSVerificationCodeAdmin(admin.ModelAdmin[SMSVerificationCode]):
     list_display = [
         "phone",
         "code",
