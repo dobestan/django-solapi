@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from django.core.cache import cache as default_cache
@@ -8,11 +9,14 @@ from django.db.models import Model
 
 from .services import SMSService, get_sms_verification_model
 from .settings import (
+    SOLAPI_TEST_CREDENTIALS,
     SOLAPI_VERIFICATION_MAX_ATTEMPTS,
     SOLAPI_VERIFICATION_RATE_LIMIT_COUNT,
     SOLAPI_VERIFICATION_RATE_LIMIT_WINDOW_SECONDS,
 )
 from .utils import is_valid_phone, normalize_phone
+
+logger = logging.getLogger(__name__)
 
 
 def _is_expired(verification: Any) -> bool:
@@ -184,6 +188,17 @@ def verify_code(
             "message": "인증번호를 입력해주세요.",
             "phone": phone,
         }
+
+    # Test mode: bypass verification for configured test credentials
+    if SOLAPI_TEST_CREDENTIALS and phone in SOLAPI_TEST_CREDENTIALS:
+        if SOLAPI_TEST_CREDENTIALS[phone] == code:
+            logger.info("Test credentials used for phone: %s", phone)
+            return {
+                "success": True,
+                "phone": phone,
+                "verification": None,
+                "test_mode": True,
+            }
 
     verification = get_latest_verification(phone)
     if not verification:

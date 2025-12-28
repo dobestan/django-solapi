@@ -38,3 +38,8 @@ SOLAPI_TEMPLATES = getattr(
 
 SOLAPI_SMS_LOG_MODEL = getattr(django_settings, "SOLAPI_SMS_LOG_MODEL", None)
 SOLAPI_SMS_VERIFICATION_MODEL = getattr(django_settings, "SOLAPI_SMS_VERIFICATION_MODEL", None)
+
+# Test mode: bypass SMS verification for specific phone/code pairs
+# Format: {"phone_number": "verification_code"}
+# Example: {"01022205736": "573648"}
+SOLAPI_TEST_CREDENTIALS = getattr(django_settings, "SOLAPI_TEST_CREDENTIALS", {})

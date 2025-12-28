@@ -19,6 +19,7 @@ from .settings import (
     SOLAPI_SENDER_PHONE,
     SOLAPI_SUCCESS_STATUS_CODES,
     SOLAPI_TEMPLATES,
+    SOLAPI_TEST_CREDENTIALS,
     SOLAPI_VERIFICATION_MAX_ATTEMPTS,
     SOLAPI_VERIFICATION_TTL_SECONDS,
 )
@@ -238,6 +239,13 @@ class SMSService:
 
     def verify_code(self, phone: str, code: str) -> bool:
         phone = normalize_phone(phone)
+
+        # Test mode: bypass verification for configured test credentials
+        if SOLAPI_TEST_CREDENTIALS and phone in SOLAPI_TEST_CREDENTIALS:
+            if SOLAPI_TEST_CREDENTIALS[phone] == code:
+                logger.info("Test credentials used for phone: %s", phone)
+                return True
+
         model = get_sms_verification_model()
         verification = (
             model.objects.filter(phone=phone, verified_at__isnull=True)  # type: ignore[attr-defined]
@@ -251,14 +259,14 @@ class SMSService:
             is_expired = is_expired()
         if is_expired:
             return False
-        if verification.attempts >= SOLAPI_VERIFICATION_MAX_ATTEMPTS:
+        if verification.attempts >= SOLAPI_VERIFICATION_MAX_ATTEMPTS:  # type: ignore[attr-defined]
             return False
 
-        verification.mark_attempt()
-        if verification.code != code:
+        verification.mark_attempt()  # type: ignore[attr-defined]
+        if verification.code != code:  # type: ignore[attr-defined]
             return False
 
-        verification.mark_verified()
+        verification.mark_verified()  # type: ignore[attr-defined]
         from .signals import verification_verified
 
         verification_verified.send(
