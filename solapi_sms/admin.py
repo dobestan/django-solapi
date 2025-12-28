@@ -50,7 +50,7 @@ class SMSVerificationCodeAdminMixin:
 
 
 @admin.register(SMSLog)
-class SMSLogAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
+class SMSLogAdmin(admin.ModelAdmin):
     list_display = ["masked_phone", "message_type", "status_badge", "created_at"]
     list_filter = ["message_type", "status", "created_at"]
     search_fields = ["phone", "message"]
@@ -85,9 +85,7 @@ class SMSLogAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
         )
 
     @admin.action(description="선택 SMS 재발송")
-    def resend_selected_sms(
-        self, request: HttpRequest, queryset: QuerySet[SMSLog]
-    ) -> None:
+    def resend_selected_sms(self, request: HttpRequest, queryset: QuerySet[SMSLog]) -> None:
         service = SMSService()
         success = 0
         failed = 0
@@ -100,7 +98,7 @@ class SMSLogAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
 
 
 @admin.register(SMSVerificationCode)
-class SMSVerificationCodeAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
+class SMSVerificationCodeAdmin(admin.ModelAdmin):
     list_display = [
         "phone",
         "code",

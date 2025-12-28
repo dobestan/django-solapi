@@ -20,8 +20,8 @@ except ImportError:
 
 
 if CELERY_AVAILABLE:
-    from ..base import send_sms_func, send_verification_code_func
     from ...settings import SOLAPI_CELERY_QUEUE
+    from ..base import send_sms_func, send_verification_code_func
 
     @shared_task(bind=True, max_retries=3, default_retry_delay=60)
     def send_sms_task(
