@@ -1,0 +1,5 @@
+include LICENSE
+include README.md
+include solapi_sms/py.typed
+recursive-include solapi_sms *.py
+recursive-include docs *.md

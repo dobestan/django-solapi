@@ -13,8 +13,44 @@ from .services import SMSService
 from .utils import mask_phone
 
 
+class SMSLogAdminMixin:
+    """SMSLog 관리자에서 사용할 수 있는 메서드들을 제공하는 Mixin"""
+
+    @admin.display(description="수신번호")
+    def masked_phone(self, obj: SMSLog) -> str:
+        return mask_phone(obj.phone)
+
+    @admin.display(description="상태")
+    def sms_status_badge(self, obj: SMSLog) -> SafeString:
+        color_map: dict[str, str] = {
+            SMSLogStatus.SUCCESS: "#0f766e",
+            SMSLogStatus.FAILED: "#b91c1c",
+            SMSLogStatus.SKIPPED: "#6b7280",
+        }
+        color = color_map.get(obj.status, "#6b7280")
+        return format_html(
+            '<span style="padding:2px 6px;border-radius:4px;color:white;background:{};">{}</span>',
+            color,
+            obj.get_status_display(),
+        )
+
+
+class SMSVerificationCodeAdminMixin:
+    """SMSVerificationCode 관리자에서 사용할 수 있는 메서드들을 제공하는 Mixin"""
+
+    @admin.display(description="만료됨", boolean=True)
+    def sms_is_expired(self, obj: SMSVerificationCode) -> bool:
+        value: Any = getattr(obj, "is_expired", False)
+        result = value() if callable(value) else value
+        return bool(result)
+
+    @admin.display(description="유효", boolean=True)
+    def sms_is_valid(self, obj: SMSVerificationCode) -> bool:
+        return obj.is_valid()
+
+
 @admin.register(SMSLog)
-class SMSLogAdmin(admin.ModelAdmin[SMSLog]):
+class SMSLogAdmin(admin.ModelAdmin):
     list_display = ["masked_phone", "message_type", "status_badge", "created_at"]
     list_filter = ["message_type", "status", "created_at"]
     search_fields = ["phone", "message"]
@@ -64,7 +100,7 @@ class SMSLogAdmin(admin.ModelAdmin[SMSLog]):
 
 
 @admin.register(SMSVerificationCode)
-class SMSVerificationCodeAdmin(admin.ModelAdmin[SMSVerificationCode]):
+class SMSVerificationCodeAdmin(admin.ModelAdmin):
     list_display = [
         "phone",
         "code",
