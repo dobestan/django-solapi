@@ -82,11 +82,7 @@ class AbstractSMSVerificationCode(models.Model):
 
     def is_valid(self, max_attempts: int | None = None) -> bool:
         max_attempts = max_attempts or settings.SOLAPI_VERIFICATION_MAX_ATTEMPTS
-        return (
-            not self.is_expired
-            and not self.is_verified
-            and self.attempts < max_attempts
-        )
+        return not self.is_expired and not self.is_verified and self.attempts < max_attempts
 
     def mark_attempt(self) -> None:
         self.attempts += 1
@@ -97,9 +93,7 @@ class AbstractSMSVerificationCode(models.Model):
         self.save(update_fields=["verified_at"])
 
     @classmethod
-    def create_verification(
-        cls, phone: str, code: str, ttl_seconds: int | None = None
-    ) -> Self:
+    def create_verification(cls, phone: str, code: str, ttl_seconds: int | None = None) -> Self:
         ttl = ttl_seconds or settings.SOLAPI_VERIFICATION_TTL_SECONDS
         expires_at = timezone.now() + timedelta(seconds=ttl)
         cls.objects.filter(phone=phone, verified_at__isnull=True).update(  # type: ignore[attr-defined]

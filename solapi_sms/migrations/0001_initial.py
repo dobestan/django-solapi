@@ -21,9 +21,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "phone",
-                    models.CharField(
-                        db_index=True, max_length=20, verbose_name="수신번호"
-                    ),
+                    models.CharField(db_index=True, max_length=20, verbose_name="수신번호"),
                 ),
                 ("message", models.TextField(verbose_name="메시지 내용")),
                 (
@@ -58,15 +56,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "error_message",
-                    models.TextField(
-                        blank=True, default="", verbose_name="에러 메시지"
-                    ),
+                    models.TextField(blank=True, default="", verbose_name="에러 메시지"),
                 ),
                 (
                     "created_at",
-                    models.DateTimeField(
-                        auto_now_add=True, db_index=True, verbose_name="발송시간"
-                    ),
+                    models.DateTimeField(auto_now_add=True, db_index=True, verbose_name="발송시간"),
                 ),
             ],
             options={
@@ -89,9 +83,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "phone",
-                    models.CharField(
-                        db_index=True, max_length=20, verbose_name="전화번호"
-                    ),
+                    models.CharField(db_index=True, max_length=20, verbose_name="전화번호"),
                 ),
                 ("code", models.CharField(max_length=6, verbose_name="인증코드")),
                 (
@@ -104,9 +96,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "verified_at",
-                    models.DateTimeField(
-                        blank=True, null=True, verbose_name="인증완료시간"
-                    ),
+                    models.DateTimeField(blank=True, null=True, verbose_name="인증완료시간"),
                 ),
                 (
                     "attempts",

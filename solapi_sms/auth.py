@@ -53,9 +53,7 @@ def check_rate_limit(
         dict with allowed status and attempt info
     """
     used_cache = cache or default_cache
-    effective_limit = (
-        limit if limit is not None else SOLAPI_VERIFICATION_RATE_LIMIT_COUNT
-    )
+    effective_limit = limit if limit is not None else SOLAPI_VERIFICATION_RATE_LIMIT_COUNT
     effective_window = (
         window_seconds
         if window_seconds is not None

@@ -37,9 +37,7 @@ def get_sms_log_model() -> type[Model]:
 
 def get_sms_verification_model() -> type[Model]:
     """Return the configured SMS verification model class."""
-    model_path: str | None = getattr(
-        django_settings, "SOLAPI_SMS_VERIFICATION_MODEL", None
-    )
+    model_path: str | None = getattr(django_settings, "SOLAPI_SMS_VERIFICATION_MODEL", None)
     if model_path:
         return django_apps.get_model(model_path)
     return SMSVerificationCode
