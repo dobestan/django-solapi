@@ -1,6 +1,6 @@
 [project]
 name = "django-solapi"
-version = "1.0.4"
+version = "1.0.5"
 description = "Django SMS integration for SOLAPI (with logging, verification, admin, Django 6 Tasks and Celery support)"
 readme = "README.md"
 license = { text = "MIT" }

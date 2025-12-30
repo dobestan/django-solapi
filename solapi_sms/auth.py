@@ -118,17 +118,12 @@ def send_verification_code(
             "phone": phone,
         }
 
-    # Test mode: bypass rate limit and SMS sending for configured test credentials
-    if SOLAPI_TEST_CREDENTIALS and phone in SOLAPI_TEST_CREDENTIALS:
-        logger.info("Test credentials: skipping rate limit and SMS for phone: %s", phone)
-        return {
-            "success": True,
-            "phone": phone,
-            "verification": None,
-            "test_mode": True,
-        }
+    # Test mode: bypass rate limit for configured test credentials (SMS still sent)
+    is_test_phone = SOLAPI_TEST_CREDENTIALS and phone in SOLAPI_TEST_CREDENTIALS
+    if is_test_phone:
+        logger.info("Test credentials: skipping rate limit for phone: %s", phone)
 
-    if rate_limit:
+    if rate_limit and not is_test_phone:
         rate = check_rate_limit(
             phone,
             cache=cache,
