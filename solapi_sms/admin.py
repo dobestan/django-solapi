@@ -1,16 +1,18 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from django.contrib import admin
-from django.db.models import QuerySet
-from django.http import HttpRequest
 from django.utils.html import format_html
-from django.utils.safestring import SafeString
 
 from .models import SMSLog, SMSLogStatus, SMSVerificationCode
 from .services import SMSService
 from .utils import format_phone, mask_phone
+
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
+    from django.http import HttpRequest
+    from django.utils.safestring import SafeString
 
 
 class SMSLogAdminMixin:

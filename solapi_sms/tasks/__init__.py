@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from types import ModuleType
 
 
-def _get_backend_module() -> "ModuleType":
+def _get_backend_module() -> ModuleType:
     """Return the configured backend module."""
     from ..settings import SOLAPI_TASK_BACKEND
 

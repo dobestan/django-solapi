@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from django.core.cache import cache as default_cache
-from django.core.cache.backends.base import BaseCache
-from django.db.models import Model
 
 from .services import SMSService, get_sms_verification_model
+
+if TYPE_CHECKING:
+    from django.core.cache.backends.base import BaseCache
+    from django.db.models import Model
 from .settings import (
     SOLAPI_TEST_CREDENTIALS,
     SOLAPI_VERIFICATION_MAX_ATTEMPTS,

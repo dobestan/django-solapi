@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from django.apps import apps as django_apps
 from django.conf import settings as django_settings
-from django.db.models import Model
 
 from .client import SolapiClient
+
+if TYPE_CHECKING:
+    from django.db.models import Model
 from .exceptions import SolapiSMSConfigError, SolapiSMSSendError
 from .models import SMSLog, SMSLogStatus, SMSMessageType, SMSVerificationCode
 from .settings import (
@@ -82,7 +84,12 @@ class SMSService:
         status: str,
         response_data: dict[str, Any] | None = None,
         error_message: str = "",
-    ) -> Model:
+    ) -> Model | None:
+        from .settings import SOLAPI_LOG_ENABLED
+
+        if not SOLAPI_LOG_ENABLED:
+            return None
+
         model = get_sms_log_model()
         return model.objects.create(  # type: ignore[attr-defined, no-any-return]
             phone=phone,
@@ -259,14 +266,14 @@ class SMSService:
             is_expired = is_expired()
         if is_expired:
             return False
-        if verification.attempts >= SOLAPI_VERIFICATION_MAX_ATTEMPTS:  # type: ignore[attr-defined]
+        if verification.attempts >= SOLAPI_VERIFICATION_MAX_ATTEMPTS:
             return False
 
-        verification.mark_attempt()  # type: ignore[attr-defined]
-        if verification.code != code:  # type: ignore[attr-defined]
+        verification.mark_attempt()
+        if verification.code != code:
             return False
 
-        verification.mark_verified()  # type: ignore[attr-defined]
+        verification.mark_verified()
         from .signals import verification_verified
 
         verification_verified.send(

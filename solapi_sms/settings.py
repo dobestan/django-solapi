@@ -8,6 +8,9 @@ SOLAPI_APP_NAME = getattr(django_settings, "SOLAPI_APP_NAME", "")
 SOLAPI_DEBUG_SKIP = getattr(django_settings, "SOLAPI_DEBUG_SKIP", True)
 SOLAPI_LOG_SKIPPED = getattr(django_settings, "SOLAPI_LOG_SKIPPED", True)
 
+# Set to False to disable SMSLog creation (useful when using django-notify's NotificationLog)
+SOLAPI_LOG_ENABLED = getattr(django_settings, "SOLAPI_LOG_ENABLED", True)
+
 SOLAPI_SUCCESS_STATUS_CODES = getattr(django_settings, "SOLAPI_SUCCESS_STATUS_CODES", ("2000",))
 
 SOLAPI_VERIFICATION_TTL_SECONDS = getattr(django_settings, "SOLAPI_VERIFICATION_TTL_SECONDS", 180)
