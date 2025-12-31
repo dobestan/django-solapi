@@ -24,6 +24,33 @@ def mask_phone(phone: str) -> str:
     return phone
 
 
+def format_phone(phone: str) -> str:
+    """Format phone number to 010-1234-5678 format for display."""
+    digits = normalize_phone(phone)
+    length = len(digits)
+    prefix = digits[:2]
+
+    if prefix == "01":
+        if length == 11:
+            return f"{digits[:3]}-{digits[3:7]}-{digits[7:]}"
+        if length == 10:
+            return f"{digits[:3]}-{digits[3:6]}-{digits[6:]}"
+
+    if prefix == "02":
+        if length == 9:
+            return f"{digits[:2]}-{digits[2:5]}-{digits[5:]}"
+        if length == 10:
+            return f"{digits[:2]}-{digits[2:6]}-{digits[6:]}"
+
+    if prefix not in ("01", "02"):
+        if length == 10:
+            return f"{digits[:3]}-{digits[3:6]}-{digits[6:]}"
+        if length == 11:
+            return f"{digits[:3]}-{digits[3:7]}-{digits[7:]}"
+
+    return phone
+
+
 def generate_verification_code() -> str:
     """Generate a 6-digit verification code."""
     return "".join(str(secrets.randbelow(10)) for _ in range(6))

@@ -31,11 +31,6 @@ dependencies = [
 
 [project.optional-dependencies]
 celery = ["celery>=5.0"]
-dev = [
-    "pytest>=7.0",
-    "pytest-django>=4.5",
-    "ruff>=0.8.0",
-]
 
 [project.urls]
 Homepage = "https://github.com/dobestan/django-solapi"
@@ -117,7 +112,7 @@ django_settings_module = "tests.settings"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I"]
+select = ["E", "F", "W", "I", "UP", "TCH"]
 ignore = ["E501"]  # Line length handled by formatter
 
 [tool.ruff.lint.per-file-ignores]

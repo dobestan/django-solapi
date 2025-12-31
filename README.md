@@ -164,23 +164,7 @@ send_sms_task.delay("01012345678", "[서비스명] 비동기 발송 테스트")
 
 ## Changelog
 
-### v1.0.0 (2024-12-28)
-
-**Initial Release** - SOLAPI SMS 통합 Django 패키지
-
-#### Features
-- **SMSService**: SOLAPI SDK 기반 SMS 발송 서비스
-- **SMSLog Model**: SMS 발송 로그 저장 (status, response_data 포함)
-- **SMSVerificationCode Model**: 인증코드 생성/검증
-- **Task Backends**: Django 6 Tasks, Celery, Sync 지원
-- **Signals**: SMS 발송 및 인증 이벤트 시그널
-- **Admin**: SMSLog, SMSVerificationCode 관리자 페이지
-
-#### Technical
-- Python 3.12+ 지원
-- Django 5.0, 5.1, 5.2, 6.0 지원
-- mypy strict 모드 타입 힌트
-- PEP 561 준수 (py.typed)
+See [CHANGELOG.md](CHANGELOG.md) for a detailed list of changes.
 
 ## Documentation
 
