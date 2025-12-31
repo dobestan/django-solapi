@@ -1,6 +1,6 @@
 [project]
 name = "django-solapi"
-version = "1.0.5"
+version = "1.0.9"
 description = "Django SMS integration for SOLAPI (with logging, verification, admin, Django 6 Tasks and Celery support)"
 readme = "README.md"
 license = { text = "MIT" }
@@ -112,7 +112,7 @@ django_settings_module = "tests.settings"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "UP", "TCH"]
+select = ["E", "F", "W", "I", "B", "C4", "UP"]
 ignore = ["E501"]  # Line length handled by formatter
 
 [tool.ruff.lint.per-file-ignores]

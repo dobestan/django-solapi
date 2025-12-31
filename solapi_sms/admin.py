@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from django.conf import settings as django_settings
 from django.contrib import admin
 from django.utils.html import format_html
 
@@ -13,6 +14,9 @@ if TYPE_CHECKING:
     from django.db.models import QuerySet
     from django.http import HttpRequest
     from django.utils.safestring import SafeString
+
+# Admin 등록 설정 (django-notify 사용 시 SMSLog admin 비활성화 가능)
+_REGISTER_SMSLOG_ADMIN: bool = getattr(django_settings, "SOLAPI_SMSLOG_ADMIN_ENABLED", True)
 
 
 class SMSLogAdminMixin:
@@ -51,7 +55,6 @@ class SMSVerificationCodeAdminMixin:
         return obj.is_valid()
 
 
-@admin.register(SMSLog)
 class SMSLogAdmin(admin.ModelAdmin):
     list_display = ["masked_phone", "message_type", "status_badge", "created_at"]
     list_filter = ["message_type", "status", "created_at"]
@@ -97,6 +100,10 @@ class SMSLogAdmin(admin.ModelAdmin):
             else:
                 failed += 1
         self.message_user(request, f"재발송 성공: {success}건, 실패: {failed}건")
+
+
+if _REGISTER_SMSLOG_ADMIN:
+    admin.site.register(SMSLog, SMSLogAdmin)
 
 
 @admin.register(SMSVerificationCode)
