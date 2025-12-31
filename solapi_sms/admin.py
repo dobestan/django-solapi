@@ -10,7 +10,7 @@ from django.utils.safestring import SafeString
 
 from .models import SMSLog, SMSLogStatus, SMSVerificationCode
 from .services import SMSService
-from .utils import mask_phone
+from .utils import format_phone, mask_phone
 
 
 class SMSLogAdminMixin:
@@ -100,7 +100,7 @@ class SMSLogAdmin(admin.ModelAdmin):
 @admin.register(SMSVerificationCode)
 class SMSVerificationCodeAdmin(admin.ModelAdmin):
     list_display = [
-        "phone",
+        "formatted_phone",
         "code",
         "created_at",
         "expires_at",
@@ -109,6 +109,11 @@ class SMSVerificationCodeAdmin(admin.ModelAdmin):
         "is_expired",
         "is_valid",
     ]
+
+    @admin.display(description="수신번호")
+    def formatted_phone(self, obj: SMSVerificationCode) -> str:
+        return format_phone(obj.phone) if obj.phone else "-"
+
     list_filter = ["verified_at", "created_at"]
     search_fields = ["phone", "code"]
     readonly_fields = ["created_at", "verified_at"]
