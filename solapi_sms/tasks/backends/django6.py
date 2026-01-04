@@ -11,7 +11,7 @@ from typing import Any, NoReturn
 
 # Check if Django 6 Tasks is available
 try:
-    from django.tasks import task  # type: ignore[import-untyped]
+    from django.tasks import task
 
     DJANGO_TASKS_AVAILABLE = True
 except ImportError:

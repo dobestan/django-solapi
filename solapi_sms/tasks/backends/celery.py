@@ -11,7 +11,7 @@ from typing import Any, NoReturn
 
 # Check if Celery is available
 try:
-    from celery import shared_task  # type: ignore[import-not-found]
+    from celery import shared_task
 
     CELERY_AVAILABLE = True
 except ImportError:
