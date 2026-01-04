@@ -15,8 +15,16 @@ if TYPE_CHECKING:
     from django.http import HttpRequest
     from django.utils.safestring import SafeString
 
-# Admin 등록 설정 (django-notify 사용 시 SMSLog admin 비활성화 가능)
-_REGISTER_SMSLOG_ADMIN: bool = getattr(django_settings, "SOLAPI_SMSLOG_ADMIN_ENABLED", True)
+# Admin 등록 설정 (django-notify 사용 시 admin 비활성화 가능)
+# SOLAPI_ADMIN_ENABLED=False로 설정하면 모든 admin 비활성화
+# 개별 제어: SOLAPI_SMSLOG_ADMIN_ENABLED, SOLAPI_VERIFICATION_ADMIN_ENABLED
+_ADMIN_ENABLED: bool = getattr(django_settings, "SOLAPI_ADMIN_ENABLED", True)
+_REGISTER_SMSLOG_ADMIN: bool = _ADMIN_ENABLED and getattr(
+    django_settings, "SOLAPI_SMSLOG_ADMIN_ENABLED", True
+)
+_REGISTER_VERIFICATION_ADMIN: bool = _ADMIN_ENABLED and getattr(
+    django_settings, "SOLAPI_VERIFICATION_ADMIN_ENABLED", True
+)
 
 
 class SMSLogAdminMixin:
@@ -106,7 +114,6 @@ if _REGISTER_SMSLOG_ADMIN:
     admin.site.register(SMSLog, SMSLogAdmin)
 
 
-@admin.register(SMSVerificationCode)
 class SMSVerificationCodeAdmin(admin.ModelAdmin):
     list_display = [
         "formatted_phone",
@@ -137,3 +144,7 @@ class SMSVerificationCodeAdmin(admin.ModelAdmin):
     @admin.display(description="유효", boolean=True)
     def is_valid(self, obj: SMSVerificationCode) -> bool:
         return obj.is_valid()
+
+
+if _REGISTER_VERIFICATION_ADMIN:
+    admin.site.register(SMSVerificationCode, SMSVerificationCodeAdmin)
