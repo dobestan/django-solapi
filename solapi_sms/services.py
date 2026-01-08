@@ -72,9 +72,7 @@ class SMSService:
         if "errorCode" in response_dict or "errorMessage" in response_dict:
             return False
         status_code = response_dict.get("statusCode")
-        if status_code and status_code not in SOLAPI_SUCCESS_STATUS_CODES:
-            return False
-        return True
+        return not (status_code and status_code not in SOLAPI_SUCCESS_STATUS_CODES)
 
     def _log_result(
         self,
@@ -248,10 +246,13 @@ class SMSService:
         phone = normalize_phone(phone)
 
         # Test mode: bypass verification for configured test credentials
-        if SOLAPI_TEST_CREDENTIALS and phone in SOLAPI_TEST_CREDENTIALS:
-            if SOLAPI_TEST_CREDENTIALS[phone] == code:
-                logger.info("Test credentials used for phone: %s", phone)
-                return True
+        if (
+            SOLAPI_TEST_CREDENTIALS
+            and phone in SOLAPI_TEST_CREDENTIALS
+            and SOLAPI_TEST_CREDENTIALS[phone] == code
+        ):
+            logger.info("Test credentials used for phone: %s", phone)
+            return True
 
         model = get_sms_verification_model()
         verification = (

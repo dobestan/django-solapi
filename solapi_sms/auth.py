@@ -197,15 +197,18 @@ def verify_code(
         }
 
     # Test mode: bypass verification for configured test credentials
-    if SOLAPI_TEST_CREDENTIALS and phone in SOLAPI_TEST_CREDENTIALS:
-        if SOLAPI_TEST_CREDENTIALS[phone] == code:
-            logger.info("Test credentials used for phone: %s", phone)
-            return {
-                "success": True,
-                "phone": phone,
-                "verification": None,
-                "test_mode": True,
-            }
+    if (
+        SOLAPI_TEST_CREDENTIALS
+        and phone in SOLAPI_TEST_CREDENTIALS
+        and SOLAPI_TEST_CREDENTIALS[phone] == code
+    ):
+        logger.info("Test credentials used for phone: %s", phone)
+        return {
+            "success": True,
+            "phone": phone,
+            "verification": None,
+            "test_mode": True,
+        }
 
     verification = get_latest_verification(phone)
     if not verification:
