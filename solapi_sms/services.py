@@ -112,11 +112,7 @@ class SMSService:
                 raise SolapiSMSSendError("전화번호가 비어있습니다.")
             return False
 
-        if (
-            django_settings.DEBUG
-            and SOLAPI_DEBUG_SKIP
-            and not all([self.api_key, self.api_secret, self.sender])
-        ):
+        if django_settings.DEBUG and SOLAPI_DEBUG_SKIP:
             log_entry: Model | None = None
             if SOLAPI_LOG_SKIPPED:
                 log_entry = self._log_result(
