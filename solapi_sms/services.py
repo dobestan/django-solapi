@@ -104,6 +104,7 @@ class SMSService:
         message: str,
         message_type: str = SMSMessageType.GENERIC,
         raise_on_error: bool = False,
+        subject: str | None = None,
     ) -> bool:
         phone = normalize_phone(phone)
         if not phone:
@@ -140,7 +141,7 @@ class SMSService:
         try:
             self._validate_config()
             client = SolapiClient(api_key=self.api_key, api_secret=self.api_secret)
-            response = client.send_message(phone, message, sender=self.sender)
+            response = client.send_message(phone, message, sender=self.sender, subject=subject)
             response_dict = self._serialize_response(response)
 
             if not self._is_success(response_dict):

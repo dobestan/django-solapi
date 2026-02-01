@@ -19,11 +19,14 @@ class SolapiClient:
         self.api_secret = api_secret or settings.SOLAPI_API_SECRET
         self._client = SolapiMessageService(api_key=self.api_key, api_secret=self.api_secret)
 
-    def send_message(self, to: str, text: str, sender: str | None = None) -> Any:
+    def send_message(
+        self, to: str, text: str, sender: str | None = None, subject: str | None = None
+    ) -> Any:
         message = RequestMessage(
             to=to,
             from_=sender or settings.SOLAPI_SENDER_PHONE,
             text=text,
+            subject=subject,
         )
         return self._client.send(message)
 
