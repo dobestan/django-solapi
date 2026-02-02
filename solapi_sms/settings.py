@@ -32,7 +32,7 @@ SOLAPI_TEMPLATES = getattr(
     django_settings,
     "SOLAPI_TEMPLATES",
     {
-        "verification": "[{app_name}] 인증번호는 [{code}]입니다. {expires_minutes}분 내로 입력해주세요.",
+        "verification": "[{app_name}] 인증번호는 {code}입니다. {expires_minutes}분 내로 입력해주세요.",
         "login_notification": "[{app_name}] [{username}]님이 로그인 하였습니다.",
         "welcome": "[{app_name}] 회원가입을 환영합니다.",
         "analysis_complete": "[{app_name}] 분석이 완료되었습니다.\n{report_url}",
