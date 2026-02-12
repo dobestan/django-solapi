@@ -1,6 +1,6 @@
 [project]
 name = "django-solapi"
-version = "2026.2.1"
+version = "2026.2.12"
 description = "Django SMS integration for SOLAPI (with logging, verification, admin, Django 6 Tasks and Celery support)"
 readme = "README.md"
 license = { text = "MIT" }
@@ -121,7 +121,7 @@ ignore = ["E501", "S101"]
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "2026.2.1"
+version = "2026.2.12"
 version_files = ["pyproject.toml:^version"]
 tag_format = "v$version"
 

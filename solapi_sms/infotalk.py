@@ -1,4 +1,4 @@
-"""Kakao Alimtalk (알림톡) service with logging and debug skip."""
+"""Kakao Infotalk (알림톡) service with logging and debug skip."""
 
 from __future__ import annotations
 
@@ -20,8 +20,8 @@ from .settings import (
 logger = logging.getLogger(__name__)
 
 
-class AlimtalkService:
-    """SOLAPI Alimtalk service with logging and debug skip support."""
+class InfotalkService:
+    """SOLAPI Infotalk service with logging and debug skip support."""
 
     def __init__(
         self,
@@ -38,11 +38,11 @@ class AlimtalkService:
     def _validate_config(self) -> None:
         if not all([self.api_key, self.api_secret, self.pf_id]):
             raise SolapiKakaoConfigError(
-                "SOLAPI Alimtalk 설정이 누락되었습니다. "
+                "SOLAPI Infotalk 설정이 누락되었습니다. "
                 "SOLAPI_API_KEY, SOLAPI_API_SECRET, SOLAPI_KAKAO_PF_ID를 확인하세요."
             )
 
-    def send_alimtalk(
+    def send_infotalk(
         self,
         phone: str,
         template_id: str,
@@ -52,14 +52,14 @@ class AlimtalkService:
         fallback_text: str | None = None,
         raise_on_error: bool = False,
     ) -> bool:
-        """Send Alimtalk message.
+        """Send Infotalk message.
 
         Args:
             phone: Recipient phone number.
             template_id: Kakao-approved template ID.
             variables: Template variables (auto-wrapped with #{} by SDK).
-            disable_sms: If True, skip SMS fallback on Alimtalk failure.
-            fallback_text: SMS fallback text (used when Alimtalk fails).
+            disable_sms: If True, skip SMS fallback on Infotalk failure.
+            fallback_text: SMS fallback text (used when Infotalk fails).
             raise_on_error: If True, raise exception on failure.
 
         Returns:
@@ -72,7 +72,7 @@ class AlimtalkService:
 
         if django_settings.DEBUG and SOLAPI_DEBUG_SKIP:
             logger.info(
-                "Alimtalk skipped (debug mode)",
+                "Infotalk skipped (debug mode)",
                 extra={
                     "phone": phone[:3] + "****" if len(phone) > 3 else phone,
                     "template_id": template_id,
@@ -83,7 +83,7 @@ class AlimtalkService:
         try:
             self._validate_config()
             client = SolapiClient(api_key=self.api_key, api_secret=self.api_secret)
-            response = client.send_alimtalk(
+            response = client.send_infotalk(
                 to=phone,
                 template_id=template_id,
                 pf_id=self.pf_id,
@@ -96,13 +96,13 @@ class AlimtalkService:
 
             if "errorCode" in response_dict or "errorMessage" in response_dict:
                 error_msg = response_dict.get("errorMessage", "Unknown error")
-                logger.error("Alimtalk send failed", extra={"error": error_msg})
+                logger.error("Infotalk send failed", extra={"error": error_msg})
                 if raise_on_error:
                     raise SolapiKakaoSendError(f"알림톡 발송 실패: {error_msg}")
                 return False
 
             logger.info(
-                "Alimtalk sent",
+                "Infotalk sent",
                 extra={
                     "phone": phone[:3] + "****" if len(phone) > 3 else phone,
                     "template_id": template_id,
@@ -115,33 +115,33 @@ class AlimtalkService:
         except SolapiKakaoSendError:
             raise
         except Exception as exc:
-            logger.error("Alimtalk send error", exc_info=exc)
+            logger.error("Infotalk send error", exc_info=exc)
             if raise_on_error:
                 raise SolapiKakaoSendError(str(exc)) from exc
             return False
 
-    def send_alimtalk_by_key(
+    def send_infotalk_by_key(
         self,
         phone: str,
         template_key: str,
         variables: dict[str, str] | None = None,
         **kwargs: Any,
     ) -> bool:
-        """Send Alimtalk using a template key from SOLAPI_ALIMTALK_TEMPLATES.
+        """Send Infotalk using a template key from SOLAPI_INFOTALK_TEMPLATES.
 
         Args:
             phone: Recipient phone number.
-            template_key: Key in SOLAPI_ALIMTALK_TEMPLATES dict.
+            template_key: Key in SOLAPI_INFOTALK_TEMPLATES dict.
             variables: Template variables.
-            **kwargs: Passed to send_alimtalk().
+            **kwargs: Passed to send_infotalk().
 
         Returns:
             True if sent successfully.
         """
-        templates: dict[str, str] = getattr(django_settings, "SOLAPI_ALIMTALK_TEMPLATES", {})
+        templates: dict[str, str] = getattr(django_settings, "SOLAPI_INFOTALK_TEMPLATES", {})
         template_id = templates.get(template_key, "")
         if not template_id:
             raise SolapiKakaoConfigError(
-                f"알림톡 템플릿 '{template_key}'이(가) SOLAPI_ALIMTALK_TEMPLATES에 등록되지 않았습니다."
+                f"알림톡 템플릿 '{template_key}'이(가) SOLAPI_INFOTALK_TEMPLATES에 등록되지 않았습니다."
             )
-        return self.send_alimtalk(phone, template_id, variables, **kwargs)
+        return self.send_infotalk(phone, template_id, variables, **kwargs)

@@ -31,7 +31,7 @@ class SolapiClient:
         )
         return self._client.send(message)
 
-    def send_alimtalk(
+    def send_infotalk(
         self,
         to: str,
         template_id: str,
@@ -42,7 +42,7 @@ class SolapiClient:
         disable_sms: bool = False,
         fallback_text: str | None = None,
     ) -> Any:
-        """Send Alimtalk (카카오 알림톡) message.
+        """Send Infotalk (카카오 알림톡) message.
 
         SOLAPI handles SMS fallback server-side when disable_sms=False.
         """

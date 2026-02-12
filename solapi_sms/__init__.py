@@ -3,7 +3,7 @@ Django SOLAPI - SMS & Kakao messaging integration for SOLAPI
 
 Provides:
 - SMSService for sending SMS messages
-- AlimtalkService for sending Kakao Alimtalk (알림톡)
+- InfotalkService for sending Kakao Infotalk (알림톡)
 - BrandMessageService for sending Kakao Brand Messages (브랜드 메시지)
 - SMSLog model for logging sent messages
 - SMSVerificationCode for phone verification
