@@ -7,7 +7,7 @@ class SolapiSMSSendError(RuntimeError):
 
 
 class SolapiKakaoConfigError(RuntimeError):
-    """Raised when Kakao (Alimtalk/Brand Message) configuration is missing."""
+    """Raised when Kakao (Infotalk/Brand Message) configuration is missing."""
 
 
 class SolapiKakaoSendError(RuntimeError):
