@@ -7,6 +7,7 @@ Django SMS & Kakao messaging integration for SOLAPI with standardized models, ad
 - SOLAPI SDK 기반 SMS 발송
 - **Kakao Infotalk (알림톡)** 발송 서비스
 - **Kakao Brand Message (브랜드 메시지)** 발송 서비스
+- **RCS (Rich Communication Services)** 발송 서비스
 - SMS 발송 로그 모델 (Admin 포함)
 - SMS 인증코드 생성/검증 모델 및 서비스
 - Admin 표준 유틸 (상태 배지, 재발송 액션 등)
@@ -64,6 +65,12 @@ SOLAPI_KAKAO_PF_ID = "your-kakao-pf-id"  # 카카오 비즈니스 채널 PF ID
 SOLAPI_INFOTALK_TEMPLATES = {
     "welcome": "KA01TP2502120000",  # 카카오 검수 승인된 템플릿 ID
     "verification": "KA01TP2502120001",
+}
+
+# RCS 설정
+SOLAPI_RCS_BRAND_ID = "your-rcs-brand-id"  # 통신사 등록 브랜드 ID
+SOLAPI_RCS_TEMPLATES = {
+    "welcome": "TPL_abcdef123456",  # RCS 템플릿 ID
 }
 ```
 
@@ -161,6 +168,46 @@ service.send_infotalk_by_key(
 )
 ```
 
+## RCS (Rich Communication Services)
+
+```python
+# settings.py
+SOLAPI_RCS_BRAND_ID = "your-rcs-brand-id"  # 통신사 등록 브랜드 ID
+SOLAPI_RCS_TEMPLATES = {
+    "welcome": "TPL_abcdef123456",
+    "order_confirm": "TPL_789xyz000000",
+}
+```
+
+```python
+from solapi_sms.rcs import RCSService
+
+service = RCSService()
+
+# RCS 메시지 직접 발송
+service.send_rcs(
+    phone="01012345678",
+    text="주문이 확인되었습니다.",
+    message_type="RCS_SMS",
+)
+
+# 템플릿 기반 발송
+service.send_rcs(
+    phone="01012345678",
+    text="",
+    template_id="TPL_abcdef123456",
+    variables={"#{name}": "홍길동"},
+    message_type="RCS_TPL",
+)
+
+# SOLAPI_RCS_TEMPLATES 키로 발송
+service.send_rcs_by_key(
+    phone="01012345678",
+    template_key="welcome",
+    text="환영합니다",
+)
+```
+
 ## Admin
 
 `SMSLog`, `SMSVerificationCode` 모델이 기본 등록되어 있으며,
@@ -184,6 +231,13 @@ service.send_infotalk_by_key(
 |--------|------|
 | `send_infotalk(phone, template_id, variables, ...)` | 알림톡 발송 |
 | `send_infotalk_by_key(phone, template_key, variables, ...)` | 템플릿 키 기반 알림톡 발송 |
+
+### RCSService Methods
+
+| 메서드 | 설명 |
+|--------|------|
+| `send_rcs(phone, text, ...)` | RCS 메시지 발송 (SMS/LMS/MMS/TPL) |
+| `send_rcs_by_key(phone, template_key, text, ...)` | 템플릿 키 기반 RCS 발송 |
 
 ### Signals
 
