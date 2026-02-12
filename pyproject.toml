@@ -1,6 +1,6 @@
 [project]
 name = "django-solapi"
-version = "2026.2.12"
+version = "2026.2.13"
 description = "Django SMS integration for SOLAPI (with logging, verification, admin, Django 6 Tasks and Celery support)"
 readme = "README.md"
 license = { text = "MIT" }
@@ -88,8 +88,23 @@ disallow_untyped_decorators = false
 [[tool.mypy.overrides]]
 module = [
     "solapi.*",
+    "celery",
+    "celery.*",
 ]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "django.tasks",
+    "django.tasks.*",
+]
+ignore_missing_imports = true
+follow_untyped_imports = true
+
+# Task backends use conditional imports that confuse mypy
+[[tool.mypy.overrides]]
+module = "solapi_sms.tasks.backends.*"
+disable_error_code = ["import-not-found", "assignment"]
 
 # Admin modules (Django admin typing is complex)
 [[tool.mypy.overrides]]
@@ -121,7 +136,7 @@ ignore = ["E501", "S101"]
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "2026.2.12"
+version = "2026.2.13"
 version_files = ["pyproject.toml:^version"]
 tag_format = "v$version"
 

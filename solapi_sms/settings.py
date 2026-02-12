@@ -31,6 +31,10 @@ SOLAPI_BRAND_MESSAGE_TEMPLATES: dict[str, str] = getattr(
     django_settings, "SOLAPI_BRAND_MESSAGE_TEMPLATES", {}
 )
 
+# RCS configuration
+SOLAPI_RCS_BRAND_ID: str = getattr(django_settings, "SOLAPI_RCS_BRAND_ID", "")
+SOLAPI_RCS_TEMPLATES: dict[str, str] = getattr(django_settings, "SOLAPI_RCS_TEMPLATES", {})
+
 SOLAPI_CELERY_QUEUE = getattr(django_settings, "SOLAPI_CELERY_QUEUE", None)
 
 # Task backend configuration

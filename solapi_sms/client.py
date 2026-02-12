@@ -102,6 +102,55 @@ class SolapiClient:
         )
         return self._client.send(message)
 
+    def send_rcs(
+        self,
+        to: str,
+        text: str,
+        *,
+        sender: str | None = None,
+        brand_id: str | None = None,
+        template_id: str | None = None,
+        variables: dict[str, str] | None = None,
+        buttons: list[dict[str, Any]] | None = None,
+        disable_sms: bool = False,
+        message_type: str = "RCS_SMS",
+        mms_type: str | None = None,
+    ) -> Any:
+        """Send RCS message.
+
+        Supports RCS_SMS, RCS_LMS, RCS_MMS, RCS_TPL, RCS_ITPL, RCS_LTPL.
+        Falls back to SMS when disable_sms=False (default).
+        """
+        from solapi.model.message_type import MessageType
+        from solapi.model.rcs.rcs_options import RcsOption
+
+        rcs_kwargs: dict[str, Any] = {
+            "brand_id": brand_id,
+            "disable_sms": disable_sms,
+        }
+        if template_id:
+            rcs_kwargs["template_id"] = template_id
+        if variables:
+            rcs_kwargs["variables"] = variables
+        if mms_type:
+            from solapi.model.rcs.rcs_options import RcsMmsType
+
+            rcs_kwargs["mms_type"] = RcsMmsType(mms_type)
+        if buttons:
+            from solapi.model.rcs.rcs_options import RcsButton
+
+            rcs_kwargs["buttons"] = [RcsButton(**btn) for btn in buttons]
+
+        rcs_option = RcsOption(**rcs_kwargs)
+        message = RequestMessage(
+            to=to,
+            from_=sender or settings.SOLAPI_SENDER_PHONE,
+            text=text,
+            rcs_options=rcs_option,
+            type=MessageType(message_type),
+        )
+        return self._client.send(message)
+
     @staticmethod
     def serialize_response(response: Any) -> dict[str, Any]:
         if hasattr(response, "model_dump"):

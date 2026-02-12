@@ -61,7 +61,7 @@ class TestBrandMessageByKey:
 class TestBrandMessageSend:
     """Test actual send flow (mocked)."""
 
-    @patch("solapi_sms.brand_message.SolapiClient")
+    @patch("solapi_sms.kakao_base.SolapiClient")
     def test_successful_send(self, mock_client_cls: MagicMock, settings: Any) -> None:
         settings.DEBUG = False
         mock_instance = MagicMock()
@@ -81,7 +81,7 @@ class TestBrandMessageSend:
         assert result is True
         mock_instance.send_brand_message.assert_called_once()
 
-    @patch("solapi_sms.brand_message.SolapiClient")
+    @patch("solapi_sms.kakao_base.SolapiClient")
     def test_send_with_image(self, mock_client_cls: MagicMock, settings: Any) -> None:
         settings.DEBUG = False
         mock_instance = MagicMock()

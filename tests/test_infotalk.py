@@ -85,7 +85,7 @@ class TestInfotalkByKey:
 class TestInfotalkSend:
     """Test actual send flow (mocked)."""
 
-    @patch("solapi_sms.infotalk.SolapiClient")
+    @patch("solapi_sms.kakao_base.SolapiClient")
     def test_successful_send(self, mock_client_cls: MagicMock, settings: Any) -> None:
         settings.DEBUG = False
         mock_instance = MagicMock()
@@ -98,7 +98,7 @@ class TestInfotalkSend:
         assert result is True
         mock_instance.send_infotalk.assert_called_once()
 
-    @patch("solapi_sms.infotalk.SolapiClient")
+    @patch("solapi_sms.kakao_base.SolapiClient")
     def test_send_error_response(self, mock_client_cls: MagicMock, settings: Any) -> None:
         settings.DEBUG = False
         mock_instance = MagicMock()
@@ -113,7 +113,7 @@ class TestInfotalkSend:
         result = service.send_infotalk("01012345678", "INVALID_TPL")
         assert result is False
 
-    @patch("solapi_sms.infotalk.SolapiClient")
+    @patch("solapi_sms.kakao_base.SolapiClient")
     def test_send_error_raises(self, mock_client_cls: MagicMock, settings: Any) -> None:
         settings.DEBUG = False
         mock_instance = MagicMock()

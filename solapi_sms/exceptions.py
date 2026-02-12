@@ -12,3 +12,11 @@ class SolapiKakaoConfigError(RuntimeError):
 
 class SolapiKakaoSendError(RuntimeError):
     """Raised when Kakao message send fails."""
+
+
+class SolapiRCSConfigError(RuntimeError):
+    """Raised when RCS configuration is missing."""
+
+
+class SolapiRCSSendError(RuntimeError):
+    """Raised when RCS message send fails."""
