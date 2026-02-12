@@ -4,3 +4,11 @@ class SolapiSMSConfigError(RuntimeError):
 
 class SolapiSMSSendError(RuntimeError):
     """Raised when SOLAPI send fails."""
+
+
+class SolapiKakaoConfigError(RuntimeError):
+    """Raised when Kakao (Alimtalk/Brand Message) configuration is missing."""
+
+
+class SolapiKakaoSendError(RuntimeError):
+    """Raised when Kakao message send fails."""

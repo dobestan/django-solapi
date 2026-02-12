@@ -22,6 +22,15 @@ SOLAPI_VERIFICATION_RATE_LIMIT_WINDOW_SECONDS = getattr(
     django_settings, "SOLAPI_VERIFICATION_RATE_LIMIT_WINDOW_SECONDS", 0
 )
 
+# Kakao Alimtalk / Brand Message configuration
+SOLAPI_KAKAO_PF_ID: str = getattr(django_settings, "SOLAPI_KAKAO_PF_ID", "")
+SOLAPI_ALIMTALK_TEMPLATES: dict[str, str] = getattr(
+    django_settings, "SOLAPI_ALIMTALK_TEMPLATES", {}
+)
+SOLAPI_BRAND_MESSAGE_TEMPLATES: dict[str, str] = getattr(
+    django_settings, "SOLAPI_BRAND_MESSAGE_TEMPLATES", {}
+)
+
 SOLAPI_CELERY_QUEUE = getattr(django_settings, "SOLAPI_CELERY_QUEUE", None)
 
 # Task backend configuration
