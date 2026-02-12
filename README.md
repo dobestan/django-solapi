@@ -1,10 +1,12 @@
 # django-solapi
 
-Django SMS integration for SOLAPI with standardized models, admin utilities, and async task support.
+Django SMS & Kakao messaging integration for SOLAPI with standardized models, admin utilities, and async task support.
 
 ## Features
 
 - SOLAPI SDK 기반 SMS 발송
+- **Kakao Infotalk (알림톡)** 발송 서비스
+- **Kakao Brand Message (브랜드 메시지)** 발송 서비스
 - SMS 발송 로그 모델 (Admin 포함)
 - SMS 인증코드 생성/검증 모델 및 서비스
 - Admin 표준 유틸 (상태 배지, 재발송 액션 등)
@@ -56,6 +58,13 @@ SOLAPI_VERIFICATION_RATE_LIMIT_WINDOW_SECONDS = 3600  # Rate limit 윈도우
 
 # Task 백엔드 설정 (django6, celery, sync)
 SOLAPI_TASK_BACKEND = "sync"  # 기본값
+
+# Kakao 설정 (Infotalk / Brand Message)
+SOLAPI_KAKAO_PF_ID = "your-kakao-pf-id"  # 카카오 비즈니스 채널 PF ID
+SOLAPI_INFOTALK_TEMPLATES = {
+    "welcome": "KA01TP2502120000",  # 카카오 검수 승인된 템플릿 ID
+    "verification": "KA01TP2502120001",
+}
 ```
 
 ## Quick Start
@@ -130,6 +139,28 @@ from solapi_sms.tasks import send_sms_task
 send_sms_task.delay("01012345678", "[서비스명] 비동기 발송 테스트")
 ```
 
+## Kakao Infotalk (알림톡)
+
+```python
+from solapi_sms.infotalk import InfotalkService
+
+service = InfotalkService()
+
+# 템플릿 ID 직접 지정
+service.send_infotalk(
+    phone="01012345678",
+    template_id="KA01TP2502120000",
+    variables={"#{name}": "홍길동", "#{code}": "123456"},
+)
+
+# SOLAPI_INFOTALK_TEMPLATES 키로 발송
+service.send_infotalk_by_key(
+    phone="01012345678",
+    template_key="welcome",
+    variables={"#{name}": "홍길동"},
+)
+```
+
 ## Admin
 
 `SMSLog`, `SMSVerificationCode` 모델이 기본 등록되어 있으며,
@@ -146,6 +177,13 @@ send_sms_task.delay("01012345678", "[서비스명] 비동기 발송 테스트")
 | `create_verification(phone)` | 인증코드 생성 |
 | `send_verification_code(phone, code)` | 인증코드 발송 |
 | `verify_code(phone, code)` | 인증코드 검증 |
+
+### InfotalkService Methods
+
+| 메서드 | 설명 |
+|--------|------|
+| `send_infotalk(phone, template_id, variables, ...)` | 알림톡 발송 |
+| `send_infotalk_by_key(phone, template_key, variables, ...)` | 템플릿 키 기반 알림톡 발송 |
 
 ### Signals
 
@@ -182,3 +220,4 @@ MIT License
 
 - [SOLAPI 개발자 센터](https://developers.solapi.com/)
 - [SOLAPI Python SDK](https://github.com/solapi/solapi-python)
+- [카카오 비즈니스 - Infotalk (알림톡)](https://business.kakao.com/info/infotalk/)
