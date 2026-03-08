@@ -63,6 +63,51 @@ Configurable via `SOLAPI_RETRY_MAX_ATTEMPTS` and `SOLAPI_RETRY_BASE_DELAY`.
 `send_sms_batch()` processes each message independently. One failed SMS
 never aborts the batch. Each result includes `success`/`error` status.
 
+## 카카오/RCS 메시징
+
+```python
+from solapi_sms.infotalk import InfotalkService
+from solapi_sms.brand_message import BrandMessageService
+from solapi_sms.rcs import RCSService
+
+# 카카오 알림톡
+infotalk = InfotalkService()
+infotalk.send("01012345678", template_id="KA01TP001", variables={"name": "홍길동"})
+
+# 카카오 브랜드 메시지
+brand = BrandMessageService()
+brand.send("01012345678", template_id="BM01TP001", variables={"order_id": "ORD-001"})
+
+# RCS 메시징
+rcs = RCSService()
+rcs.send("01012345678", "RCS 메시지 내용")
+```
+
+모든 메시징 채널은 동일한 retry + backoff 정책 적용.
+
+## 에러 처리
+
+| Exception | 발생 시점 |
+|-----------|----------|
+| `SolapiSMSConfigError` | API Key/Secret/Sender 미설정 |
+| `SolapiSMSSendError` | SMS 발송 실패 (잔액 부족, 잘못된 번호 등) |
+| `SolapiKakaoConfigError` | 카카오 설정 미완료 |
+| `SolapiKakaoSendError` | 카카오 메시지 발송 실패 |
+| `SolapiRCSConfigError` | RCS 설정 미완료 |
+| `SolapiRCSSendError` | RCS 메시지 발송 실패 |
+
+**Retry 대상**: `TimeoutError`, `ConnectionError`, `OSError`, `ssl.SSLError`, SOLAPI 5xx (`UnknownError`)
+**즉시 실패**: 인증 실패, 잔액 부족, 잘못된 전화번호
+
+## Django Signals
+
+| Signal | 발생 시점 |
+|--------|----------|
+| `sms_sent` | SMS 발송 성공 |
+| `sms_failed` | SMS 발송 실패 |
+| `verification_requested` | 인증코드 요청 |
+| `verification_completed` | 인증코드 검증 성공 |
+
 ## Django Settings
 
 ```python
@@ -78,3 +123,13 @@ SOLAPI_VERIFICATION_TTL_SECONDS = 180
 SOLAPI_RETRY_MAX_ATTEMPTS = 3    # max retries on transient failure
 SOLAPI_RETRY_BASE_DELAY = 1.0    # base delay in seconds (doubles each retry)
 ```
+
+## 주의사항
+
+| 주의 | 설명 |
+|------|------|
+| Task backend | 프로덕션에서 `django6` backend 사용 시 `python manage.py db_worker` 필요 |
+| SMSLog 모델 | 발송 기록 자동 저장. Admin에서 조회 가능 |
+| 인증코드 TTL | 기본 180초. `SOLAPI_VERIFICATION_TTL_SECONDS`로 조정 |
+| 배치 격리 | `send_sms_batch()`에서 하나 실패해도 나머지 계속 발송 |
+| 테스트 환경 | 실제 SMS 발송 없이 테스트하려면 mock 필요 (sandbox API 미제공) |
