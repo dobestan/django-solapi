@@ -203,6 +203,36 @@ class SMSService:
                 raise SolapiSMSSendError(str(exc)) from exc
             return False
 
+    def send_sms_batch(
+        self,
+        messages: list[tuple[str, str]],
+        message_type: str = SMSMessageType.GENERIC,
+    ) -> list[dict[str, Any]]:
+        """Send multiple SMS messages with error isolation.
+
+        Each message is sent independently — if one fails, the rest continue.
+
+        Args:
+            messages: List of (phone, message) tuples.
+            message_type: Message type for all messages.
+
+        Returns:
+            List of dicts with 'phone', 'success', and optional 'error' keys.
+        """
+        results: list[dict[str, Any]] = []
+        for phone, message in messages:
+            try:
+                success = self.send_sms(phone, message, message_type=message_type)
+                results.append({"phone": phone, "success": success})
+            except Exception as exc:
+                logger.error(
+                    "Batch SMS send failed for %s",
+                    phone[:3] + "****" if len(phone) > 3 else phone,
+                    exc_info=exc,
+                )
+                results.append({"phone": phone, "success": False, "error": str(exc)})
+        return results
+
     def send_templated(
         self,
         phone: str,

@@ -35,6 +35,10 @@ SOLAPI_BRAND_MESSAGE_TEMPLATES: dict[str, str] = getattr(
 SOLAPI_RCS_BRAND_ID: str = getattr(django_settings, "SOLAPI_RCS_BRAND_ID", "")
 SOLAPI_RCS_TEMPLATES: dict[str, str] = getattr(django_settings, "SOLAPI_RCS_TEMPLATES", {})
 
+# Retry configuration for transient API failures
+SOLAPI_RETRY_MAX_ATTEMPTS: int = getattr(django_settings, "SOLAPI_RETRY_MAX_ATTEMPTS", 3)
+SOLAPI_RETRY_BASE_DELAY: float = getattr(django_settings, "SOLAPI_RETRY_BASE_DELAY", 1.0)
+
 SOLAPI_CELERY_QUEUE = getattr(django_settings, "SOLAPI_CELERY_QUEUE", None)
 
 # Task backend configuration
